@@ -22,8 +22,8 @@ def get_client() -> AsyncOpenAI:
 
 # ── 模型选择 ──
 
-DEFAULT_MODEL = "deepseek-v4-pro"
-FAST_MODEL = "deepseek-v4-flash"
+DEFAULT_MODEL = "deepseek-chat"
+FAST_MODEL = "deepseek-chat"
 
 
 # ── 角色系统 prompts ──
@@ -72,7 +72,7 @@ async def chat(
     model: str = DEFAULT_MODEL,
     temperature: float = 1.0,
     max_tokens: int = 4096,
-    thinking_mode: str = "thinking",
+    thinking_mode: str = "non-thinking",
 ) -> str:
     """非流式调用 DeepSeek V4 Chat Completions"""
     client = get_client()
