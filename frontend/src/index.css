@@ -1,0 +1,253 @@
+@import "tailwindcss";
+
+/* ── Design Tokens ── */
+:root {
+  --ink: #0a0a14;
+  --ink-light: #12122a;
+  --ink-lighter: #1a1a3e;
+  --paper: #e8e0d0;
+  --paper-dim: #c8c0b0;
+  --gold: #d4a054;
+  --gold-light: #e8c074;
+  --copper: #c07040;
+  --cyan: #40b8c8;
+  --cyan-dim: #308898;
+  --amber: #e8a030;
+  --amber-glow: rgba(232, 160, 48, 0.15);
+  --card-bg: rgba(18, 18, 42, 0.8);
+}
+
+body {
+  background: var(--ink);
+  color: var(--paper);
+  font-family: "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Typography ── */
+.font-heading {
+  font-family: "Noto Serif SC", "STSong", "SimSun", serif;
+}
+
+/* ── Background Effects ── */
+.bg-ink-texture {
+  background:
+    radial-gradient(ellipse at 20% 50%, rgba(64, 184, 200, 0.03) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 20%, rgba(212, 160, 84, 0.03) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 80%, rgba(192, 112, 64, 0.02) 0%, transparent 50%),
+    var(--ink);
+}
+
+.bg-card {
+  background: var(--card-bg);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(232, 224, 208, 0.08);
+}
+
+.bg-card:hover {
+  border-color: rgba(232, 224, 208, 0.15);
+}
+
+/* ── Glow Effects ── */
+.glow-gold {
+  box-shadow: 0 0 20px rgba(212, 160, 84, 0.1), 0 0 60px rgba(212, 160, 84, 0.05);
+}
+
+.glow-cyan {
+  box-shadow: 0 0 20px rgba(64, 184, 200, 0.1), 0 0 60px rgba(64, 184, 200, 0.05);
+}
+
+/* ── Animations ── */
+@keyframes fadeSlideUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeSlideIn {
+  from { opacity: 0; transform: translateX(-12px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes fadeSlideInRight {
+  from { opacity: 0; transform: translateX(12px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes glowPulse {
+  0%, 100% { box-shadow: 0 0 8px rgba(64, 184, 200, 0.15); }
+  50% { box-shadow: 0 0 24px rgba(64, 184, 200, 0.3); }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes typingDot {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 1; }
+}
+
+.animate-fade-up {
+  animation: fadeSlideUp 0.5s ease-out both;
+}
+
+.animate-fade-in {
+  animation: fadeSlideIn 0.4s ease-out both;
+}
+
+.animate-fade-in-right {
+  animation: fadeSlideInRight 0.4s ease-out both;
+}
+
+.animate-glow {
+  animation: glowPulse 2s ease-in-out infinite;
+}
+
+/* ── Mode Selector Cards ── */
+.mode-card {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.mode-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, transparent 40%, rgba(212, 160, 84, 0.05) 100%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.mode-card:hover::before {
+  opacity: 1;
+}
+
+.mode-card.selected {
+  border-color: var(--gold);
+  background: rgba(212, 160, 84, 0.08);
+}
+
+.mode-card.selected::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  animation: shimmer 2s linear infinite;
+  background-size: 200% 100%;
+}
+
+/* ── Role Cards ── */
+.role-card {
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.role-card.thinking {
+  border-color: rgba(64, 184, 200, 0.3);
+  animation: glowPulse 2s ease-in-out infinite;
+}
+
+.role-card.done {
+  opacity: 1;
+}
+
+.role-card .card-accent {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 3px;
+  height: 100%;
+  border-radius: 3px 0 0 3px;
+  transition: height 0.5s ease;
+}
+
+/* ── Typing indicator ── */
+.typing-dot {
+  display: inline-block;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--cyan);
+  animation: typingDot 1s ease-in-out infinite;
+}
+.typing-dot:nth-child(2) { animation-delay: 0.15s; }
+.typing-dot:nth-child(3) { animation-delay: 0.3s; }
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(232, 224, 208, 0.1);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(232, 224, 208, 0.2);
+}
+
+/* ── Input / Textarea ── */
+.input-ink {
+  background: rgba(18, 18, 42, 0.6);
+  border: 1px solid rgba(232, 224, 208, 0.1);
+  color: var(--paper);
+  transition: all 0.3s ease;
+}
+.input-ink:focus {
+  border-color: var(--gold);
+  box-shadow: 0 0 12px rgba(212, 160, 84, 0.1);
+  outline: none;
+}
+.input-ink::placeholder {
+  color: rgba(232, 224, 208, 0.3);
+}
+
+/* ── Button ── */
+.btn-gold {
+  background: linear-gradient(135deg, var(--gold), var(--copper));
+  color: var(--ink);
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+.btn-gold:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 20px rgba(212, 160, 84, 0.3);
+}
+.btn-gold:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.btn-ghost {
+  background: transparent;
+  border: 1px solid rgba(232, 224, 208, 0.15);
+  color: var(--paper-dim);
+  transition: all 0.3s ease;
+}
+.btn-ghost:hover {
+  border-color: var(--gold);
+  color: var(--gold-light);
+}
+
+/* ── Summary card ── */
+.summary-card {
+  background: linear-gradient(135deg,
+    rgba(212, 160, 84, 0.08),
+    rgba(64, 184, 200, 0.05)
+  );
+  border: 1px solid rgba(212, 160, 84, 0.2);
+}
+
+/* ── Print-friendly dark mode for export ── */
+@media print {
+  body { background: white !important; color: black !important; }
+}

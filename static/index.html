@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>听涛阁</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#0f0f1a;--surface:#1a1a2e;--surface2:#222240;--text:#e0e0e0;--text-dim:#8888aa;--border:#2a2a4a;--accent-a:#00b4d8;--accent-b:#f77f00;--accent-c:#7b2cbf;--font:-apple-system,"Noto Sans SC","Microsoft YaHei",sans-serif}
+html,body{height:100%}
+body{background:var(--bg);color:var(--text);font-family:var(--font);display:flex;flex-direction:column;overflow:hidden}
+header{background:var(--surface);border-bottom:1px solid var(--border);padding:12px 24px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.main{display:flex;flex:1;overflow:hidden}
+.setup{padding:16px 24px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;gap:10px;align-items:center;flex-wrap:wrap;flex-shrink:0}
+.setup input[type=text]{flex:1;min-width:200px;padding:8px 14px;border-radius:8px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-size:14px;outline:none}
+.btn{padding:6px 16px;border-radius:8px;border:1px solid var(--border);background:var(--surface2);color:var(--text);cursor:pointer;font-size:13px;white-space:nowrap}
+.btn-primary{background:var(--accent-a);color:#000;border-color:var(--accent-a);font-weight:600}
+.btn-primary:disabled{opacity:.4;cursor:default}
+.btn-danger{background:#dc2626;color:#fff;border-color:#dc2626}
+.msgarea{flex:1;overflow-y:auto;padding:16px 24px;display:flex;flex-direction:column;gap:8px}
+.msgarea::-webkit-scrollbar{width:6px}
+.msgarea::-webkit-scrollbar-track{background:transparent}
+.msgarea::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+.msg{padding:10px 16px;border-radius:10px;max-width:85%;line-height:1.6;font-size:14px;animation:fadeIn .3s}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.msg.sys{align-self:center;background:var(--surface2);color:var(--text-dim);font-size:12px;padding:6px 16px;border-radius:20px;max-width:100%}
+.msg.agt{align-self:flex-start}
+.msg.agt .hdr{font-size:12px;font-weight:600;margin-bottom:4px}
+.msg.agt .body{white-space:pre-wrap;word-break:break-word}
+.msg.usr{align-self:flex-end;background:#1a3a2e;border:1px solid #2a5a3e}
+.msg.usr .hdr{font-size:12px;color:#4ade80;font-weight:600;margin-bottom:2px}
+.msg.rd{align-self:center;color:var(--text-dim);font-size:12px;padding:4px 0;border-top:1px solid var(--border);width:100%;text-align:center;margin-top:8px}
+.bar{padding:12px 24px;background:var(--surface);border-top:1px solid var(--border);display:flex;gap:10px;align-items:center;flex-shrink:0}
+.bar input{flex:1;padding:8px 14px;border-radius:8px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-size:14px;outline:none}
+.rpt{display:none;flex:1;overflow-y:auto;padding:24px;background:var(--surface)}
+.rpt.on{display:block}
+.rpt h1{font-size:22px;margin-bottom:8px}
+.rpt h2{font-size:17px;margin:20px 0 8px;color:var(--accent-a)}
+.rpt h3{font-size:15px;margin:14px 0 6px;color:var(--accent-c)}
+.rpt p{line-height:1.7;margin:6px 0}
+.rpt ul,.rpt ol{padding-left:20px;line-height:1.7}
+.rpt strong{color:#fff}
+.rpt code{background:var(--surface);padding:2px 6px;border-radius:4px;font-size:13px}
+.rpt pre{background:var(--surface);padding:16px;border-radius:8px;overflow-x:auto;margin:12px 0}
+</style>
+</head>
+<body>
+
+<header>
+<div><strong style="font-size:20px">听涛阁</strong><span style="font-size:12px;color:var(--text-dim);margin-left:8px">千涛拍岸，真相自览</span></div>
+<div style="display:flex;align-items:center;gap:8px">
+<span id="st" style="font-size:13px;color:var(--text-dim)">⏸ 未开始</span>
+<button class="btn" id="cbtn" style="display:none" onclick="cont()">▶ 继续</button>
+</div>
+</header>
+
+<div class="main">
+<div class="setup" id="setup">
+<input type="text" id="topic" placeholder="输入你想讨论的问题..." />
+<button class="btn btn-primary" onclick="start()" id="sbtn">开始讨论 &gt;</button>
+<span style="font-size:13px;color:var(--text-dim);margin-left:4px">模式：</span>
+<button class="btn" onclick="setMode(this,'debate')" style="background:var(--accent-a);color:#000">辩论</button>
+<button class="btn" onclick="setMode(this,'brainstorm')">头脑风暴</button>
+<button class="btn" onclick="setMode(this,'mixed')">混合</button>
+<select id="rnd" style="padding:6px;border-radius:8px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-size:13px">
+<option value="2">2轮</option><option value="3" selected>3轮</option><option value="4">4轮</option><option value="5">5轮</option>
+</select>
+</div>
+
+<div class="msgarea" id="msgs">
+<div class="msg sys">输入论题，点击开始讨论</div>
+</div>
+
+<div class="bar">
+<input type="text" id="inp" placeholder="插话..." disabled />
+<button class="btn" onclick="intr()" id="ibtn" disabled>插话</button>
+<button class="btn btn-danger" onclick="end()" id="ebtn" disabled>结束</button>
+</div>
+
+<div class="rpt" id="rpt"></div>
+</div>
+
+<script>
+var sid=null,es=null,tag=null,lr="",lt="";
+
+function setMode(b,m){
+  document.querySelectorAll(".setup .btn").forEach(function(x){x.style.background="";x.style.color=""});
+  b.style.background="var(--accent-a)";b.style.color="#000";
+  window.mode=m;
+}
+
+function msg(t,c,ex){
+  var a=document.getElementById("msgs"),d=document.createElement("div");
+  d.className="msg "+t;
+  if(t=="sys")d.textContent=c;
+  else if(t=="rd")d.textContent=c;
+  else if(t=="agt"){
+    var cl=(ex&&ex.cl)||"var(--accent-a)";
+    d.style.borderLeft="3px solid "+cl;
+    d.innerHTML="<div class=\"hdr\" style=\"color:"+cl+"\">"+(ex&&ex.n||"")+"</div><div class=\"body\">"+esc(c)+"</div>";
+  }else if(t=="usr"){
+    d.innerHTML="<div class=\"hdr\">👤 你</div><div class=\"body\">"+esc(c)+"</div>";
+  }
+  a.appendChild(d);a.scrollTop=a.scrollHeight;
+}
+
+function esc(s){var d=document.createElement("div");d.textContent=s;return d.innerHTML}
+
+function typ(id,nm,cl){
+  if(tag){var ob=tag.q(".body");ob.innerHTML=esc(tag.t)}tag=null;
+  var a=document.getElementById("msgs"),d=document.createElement("div");
+  d.className="msg agt";d.style.borderLeft="3px solid "+cl;d.id="t-"+id;
+  d.innerHTML="<div class=\"hdr\" style=\"color:"+cl+"\">"+nm+"</div><div class=\"body\"><span style=\"display:inline-block;width:2px;height:1em;background:var(--text);animation:blink .8s infinite;vertical-align:text-bottom\"></span></div>";
+  a.appendChild(d);a.scrollTop=a.scrollHeight;
+  tag={id:"t-"+id,t:"",q:function(s){return d.querySelector(s)},d:d};
+}
+
+function apd(c){
+  if(!tag)return;tag.t+=c;
+  var b=tag.q(".body");b.innerHTML=esc(tag.t)+'<span style="display:inline-block;width:2px;height:1em;background:var(--text);animation:blink .8s infinite;vertical-align:text-bottom"></span>';
+  document.getElementById("msgs").scrollTop=document.getElementById("msgs").scrollHeight;
+}
+
+function fin(){if(tag){var b=tag.q(".body");b.innerHTML=esc(tag.t);tag=null}}
+
+function lock(l){
+  document.getElementById("sbtn").disabled=l;
+  document.getElementById("inp").disabled=!l;
+  document.getElementById("ibtn").disabled=!l;
+  document.getElementById("ebtn").disabled=!l;
+  var st=document.getElementById("st");
+  st.textContent=l?"💬 讨论中":"⏸ 未开始";
+  st.style.color=l?"var(--accent-a)":"var(--text-dim)";
+}
+
+async function start(){
+  var t=document.getElementById("topic").value.trim();
+  if(!t){alert("请输入论题");return}
+  document.getElementById("msgs").innerHTML="";
+  document.getElementById("rpt").className="rpt";
+  document.getElementById("rpt").innerHTML="";
+  lock(true);
+  try{
+    var r=await fetch("/api/start",{
+      method:"POST",headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({topic:t,mode:window.mode||"debate",rounds:parseInt(document.getElementById("rnd").value)})
+    });
+    var d=await r.json();
+    if(!r.ok)throw new Error(d.detail||"启动失败");
+    sid=d.session_id;
+    es=new EventSource("/api/stream/"+sid);
+    es.onmessage=function(e){try{var x=JSON.parse(e.data);h(x)}catch(xx){}};
+  }catch(e){msg("sys","❌ "+e.message);lock(false)}
+}
+
+function h(d){
+  switch(d.type){
+    case"status":msg("sys",d.message||"");break;
+    case"round_start":msg("rd","─── 第 "+d.round+"/"+d.total+" 轮 ───");break;
+    case"agent_start":typ(d.agent_id,d.agent_name,d.color);break;
+    case"agent_chunk":apd(d.chunk);break;
+    case"agent_end":fin();break;
+    case"user_interjection":msg("usr",d.message);break;
+    case"user_turn":msg("sys",d.message);document.getElementById("inp").focus();document.getElementById("inp").placeholder="你的观点...";break;
+    case"user_turn_timeout":msg("sys",d.message);document.getElementById("inp").placeholder="插话...";break;
+    case"pause":msg("sys",d.message);document.getElementById("cbtn").style.display="inline-block";break;
+    case"report":show(d);break;
+    case"error":msg("sys","❌ "+(d.message||"错误"));lock(false);break;
+    case"done":lock(false);document.getElementById("st").textContent="✅ 已结束";document.getElementById("st").style.color="var(--text-dim)";break;
+  }
+}
+
+async function intr(){
+  var i=document.getElementById("inp"),m=i.value.trim();
+  if(!m||!sid)return;i.value="";
+  try{await fetch("/api/interject",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({session_id:sid,message:m})})}catch(e){}
+}
+
+async function end(){
+  if(!sid||!confirm("确定结束？"))return;
+  try{await fetch("/api/end",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({session_id:sid})})}catch(e){}
+}
+
+function cont(){
+  fetch("/api/continue/"+sid,{method:"POST"});
+  document.getElementById("cbtn").style.display="none";
+}
+
+function show(d){
+  var rt=d.report||d;if(typeof d=="string")rt=d;
+  lr=rt;lt=d.transcript||"";
+  var p=document.getElementById("rpt");
+  p.innerHTML="<div style=\"display:flex;justify-content:space-between;align-items:center;margin-bottom:16px\">"+
+    "<h1>📋 讨论报告</h1>"+
+    "<div>"+
+    "<button class=\"btn\" onclick=\"ex('md')\">📄 MD</button>"+
+    "<button class=\"btn\" onclick=\"ex('html')\">🌐 HTML</button>"+
+    "</div></div>"+
+    md(rt);
+  p.className="rpt on";
+  document.querySelector(".msgarea").style.display="none";
+  document.getElementById("setup").style.display="none";
+}
+
+function ex(t){
+  if(t=="html"){
+    var h="<!DOCTYPE html><html><head><meta charset=\"UTF-8\"><title>听涛阁</title><style>body{background:#0f0f1a;color:#e0e0e0;font-family:sans-serif;line-height:1.8;padding:40px;max-width:800px;margin:0 auto}h1{color:#00b4d8}h2{color:#00b4d8;border-bottom:1px solid #2a2a4a}h3{color:#7b2cbf}strong{color:#fff}blockquote{border-left:3px solid #00b4d8;padding:8px 16px;background:#1a1a2e}code{background:#1a1a2e;padding:2px 6px;border-radius:4px}pre{background:#1a1a2e;padding:16px;border-radius:8px}</style></head><body>"+md(lr)+"</body></html>";
+    dl("听涛阁-报告-"+ts()+".html",h,"text/html");
+  }else{
+    dl("听涛阁-报告-"+ts()+".md",lr,"text/markdown");
+  }
+}
+
+function dl(n,c,m){
+  var b=new Blob([c],{type:m}),u=URL.createObjectURL(b),a=document.createElement("a");
+  a.href=u;a.download=n;a.click();URL.revokeObjectURL(u);
+}
+
+function ts(){var d=new Date();return d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate()}
+
+function md(t){
+  if(!t)return"";
+  var h=t.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+  h=h.replace(/```(\w*)\n([\s\S]*?)```/g,'<pre><code>$2</code></pre>');
+  h=h.replace(/`([^`\n]+)`/g,'<code>$1</code>');
+  h=h.replace(/^### (.+)$/gm,'<h3>$1</h3>');h=h.replace(/^## (.+)$/gm,'<h2>$1</h2>');h=h.replace(/^# (.+)$/gm,'<h1>$1</h1>');
+  h=h.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>');h=h.replace(/\*(.+?)\*/g,'<em>$1</em>');
+  h=h.replace(/^- (.+)$/gm,'<li>$1</li>');h=h.replace(/(<li>.*<\/li>\n?)+/g,function(m){return"<ul>"+m+"</ul>"});
+  h=h.replace(/\n\n/g,'</p><p>');h=h.replace(/\n/g,'<br>');
+  return"<p>"+h+"</p>";
+}
+
+document.getElementById("topic").addEventListener("keydown",function(e){
+  if(e.key=="Enter"&&!document.getElementById("sbtn").disabled)start();
+});
+document.getElementById("inp").addEventListener("keydown",function(e){
+  if(e.key=="Enter")intr();
+});
+</script>
+</body>
+</html>
